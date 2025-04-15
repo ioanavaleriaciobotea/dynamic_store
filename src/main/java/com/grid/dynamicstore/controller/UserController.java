@@ -4,8 +4,10 @@ import com.grid.dynamicstore.dto.LoginRequestDto;
 import com.grid.dynamicstore.dto.RegisterRequestDto;
 import com.grid.dynamicstore.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,8 +43,10 @@ public class UserController {
 
         try {
             userService.login(dto);
-            String sessionId = request.getSession().getId();
+            HttpSession session = request.getSession(true);
+            session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
+            String sessionId = session.getId();
             Map<String, String> response = new HashMap<>();
             response.put("message", "Login successful.");
             response.put("sessionId", sessionId);
