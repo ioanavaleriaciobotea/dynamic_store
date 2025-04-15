@@ -1,4 +1,7 @@
 package com.grid.dynamicstore.repository;
 
-public interface OrderItemRepository {
+import com.grid.dynamicstore.model.OrderItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 }
