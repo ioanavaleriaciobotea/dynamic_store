@@ -11,7 +11,9 @@ import java.util.List;
 @Setter
 @ToString
 public class CartResponseDto {
+
     private List<CartItemDto> items;
+
     private BigDecimal total;
 
     public CartResponseDto(List<CartItemDto> items) {

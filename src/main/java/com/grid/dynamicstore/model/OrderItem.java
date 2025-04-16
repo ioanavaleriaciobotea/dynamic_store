@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(of = {"order"})
 @ToString
 public class OrderItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orderItem_generator")
     @SequenceGenerator(name = "orderItem_generator", sequenceName = "orderItem_seq", allocationSize = 1)

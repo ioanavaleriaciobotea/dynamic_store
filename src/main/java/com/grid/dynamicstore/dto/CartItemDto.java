@@ -11,10 +11,15 @@ import java.math.BigDecimal;
 @Setter
 @ToString
 public class CartItemDto {
+
     private Long productId;
+
     private String title;
+
     private BigDecimal price;
+
     private int quantity;
+
     private BigDecimal subtotal;
 
     public CartItemDto(Product product, int quantity) {

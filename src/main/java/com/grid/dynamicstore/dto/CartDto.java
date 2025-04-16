@@ -11,6 +11,7 @@ import java.util.Map;
 @Setter
 @ToString
 public class CartDto {
+
     private final Map<Long, Integer> productQuantities = new HashMap<>();
 
     // Add product (or increase quantity)

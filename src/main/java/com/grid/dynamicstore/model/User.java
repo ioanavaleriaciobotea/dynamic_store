@@ -15,6 +15,7 @@ import java.util.Set;
 @EqualsAndHashCode(of = "email")
 @ToString(exclude = {"orders"})
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
     @SequenceGenerator(name = "user_generator", sequenceName = "user_seq", allocationSize = 1)
@@ -29,4 +30,8 @@ public class User {
     // One user -> many orders
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Order> orders = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
 }

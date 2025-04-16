@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CartAddRequestDto {
+public class CartAddDto {
 
     @NotNull(message = "Product ID is required.")
     private Long id;

@@ -11,6 +11,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class UserDto {
+
     private Long id;
 
     @NotBlank(message = "Email is required.")

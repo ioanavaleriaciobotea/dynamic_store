@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Setter
 @ToString
 public class ProductDto {
+
     private Long id;
 
     @NotBlank(message = "Title is required.")

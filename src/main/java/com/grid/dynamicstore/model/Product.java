@@ -16,6 +16,7 @@ import java.util.Set;
 @EqualsAndHashCode(of = "id")
 @ToString(exclude = {"orderItems"})
 public class Product {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_generator")
     @SequenceGenerator(name = "product_generator", sequenceName = "product_seq", allocationSize = 1)

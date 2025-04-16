@@ -2,6 +2,7 @@ package com.grid.dynamicstore.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,7 +17,8 @@ public class SessionFilterConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/register", "/users/login", "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/register", "/users/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

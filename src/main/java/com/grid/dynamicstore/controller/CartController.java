@@ -1,6 +1,6 @@
 package com.grid.dynamicstore.controller;
 
-import com.grid.dynamicstore.dto.CartAddRequestDto;
+import com.grid.dynamicstore.dto.CartAddDto;
 import com.grid.dynamicstore.dto.CartDto;
 import com.grid.dynamicstore.model.Product;
 import com.grid.dynamicstore.repository.ProductRepository;
@@ -8,8 +8,6 @@ import com.grid.dynamicstore.service.CartService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -27,7 +25,7 @@ public class CartController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addToCart(@Valid @RequestBody CartAddRequestDto request,
+    public ResponseEntity<?> addToCart(@Valid @RequestBody CartAddDto request,
                                        HttpSession session) {
 
         Optional<Product> optionalProduct = productRepository.findById(request.getId());
