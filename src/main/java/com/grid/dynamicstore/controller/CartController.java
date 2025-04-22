@@ -1,48 +1,54 @@
 package com.grid.dynamicstore.controller;
 
-import com.grid.dynamicstore.dto.CartAddDto;
-import com.grid.dynamicstore.dto.CartDto;
-import com.grid.dynamicstore.model.Product;
-import com.grid.dynamicstore.repository.ProductRepository;
+import com.grid.dynamicstore.dto.*;
 import com.grid.dynamicstore.service.CartService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/cart")
 public class CartController {
 
     private final CartService cartService;
-    private final ProductRepository productRepository;
 
-    public CartController(CartService cartService, ProductRepository productRepository) {
+    public CartController(CartService cartService) {
         this.cartService = cartService;
-        this.productRepository = productRepository;
     }
 
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(@Valid @RequestBody CartAddDto request,
                                        HttpSession session) {
 
-        Optional<Product> optionalProduct = productRepository.findById(request.getId());
-
-        if (optionalProduct.isEmpty()) {
-            return ResponseEntity.status(404).body("Product not found.");
-        }
-
-        Product product = optionalProduct.get();
-
-        if (product.getAvailable() < request.getQuantity()) {
-            return ResponseEntity.badRequest().body("Not enough quantity in stock.");
-        }
-
-        CartDto cart = cartService.getCart(session.getId());
-        cart.addProduct(product.getId(), request.getQuantity());
+        cartService.addProduct(session.getId(), request.getId(), request.getQuantity());
 
         return ResponseEntity.ok("Product added to cart.");
+    }
+
+    @GetMapping
+    public ResponseEntity<CartResponseDto> viewCart(HttpSession session) {
+
+        return ResponseEntity.ok(cartService.viewCart(session.getId()));
+    }
+
+    @DeleteMapping("/remove/{productId}")
+    public ResponseEntity<String> removeFromCart(@PathVariable Long productId, HttpSession session) {
+
+        cartService.removeProduct(session.getId(), productId);
+
+        return ResponseEntity.ok("Product removed from cart.");
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateCartItem(@Valid @RequestBody CartUpdateDto request, HttpSession session) {
+
+        CartItemDto updated = cartService.updateProduct(session.getId(), request.getId(), request.getQuantity());
+
+        if (request.getQuantity() == 0) {
+            return ResponseEntity.ok("Item removed from cart.");
+        }
+
+        return ResponseEntity.ok(updated);
     }
 }

@@ -7,12 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CartAddDto {
+public class CartUpdateDto {
 
     @NotNull(message = "Product ID is required.")
     private Long id;
 
-    @Min(value = 1, message = "Quantity must be at least 1.")
-    @NotNull
+    @Min(value = 0, message = "Quantity cannot be negative.")
     private int quantity;
 }

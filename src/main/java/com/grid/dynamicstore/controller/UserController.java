@@ -64,6 +64,7 @@ public class UserController {
         if (session != null) {
             session.invalidate();
         }
+
         return ResponseEntity.ok("Logged out.");
     }
 }

@@ -22,6 +22,8 @@ public class CartItemDto {
 
     private BigDecimal subtotal;
 
+    private int ordinal;
+
     public CartItemDto(Product product, int quantity) {
         this.productId = product.getId();
         this.title = product.getTitle();
