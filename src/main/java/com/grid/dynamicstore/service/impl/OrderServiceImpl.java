@@ -2,6 +2,7 @@ package com.grid.dynamicstore.service.impl;
 
 import com.grid.dynamicstore.dto.CartDto;
 import com.grid.dynamicstore.dto.OrderDto;
+import com.grid.dynamicstore.exception.EmptyCart;
 import com.grid.dynamicstore.exception.EntityNotFoundException;
 import com.grid.dynamicstore.exception.QuantityNotInStock;
 import com.grid.dynamicstore.model.*;
@@ -44,69 +45,114 @@ public class OrderServiceImpl implements OrderService {
         CartDto cart = cartService.getCart(sessionId);
 
         if (cart.isEmpty()) {
-            throw new IllegalStateException("Cart is empty.");
+            throw new EmptyCart("Cart is empty.");
         }
 
-        // Get authenticated user
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+        User user = getCurrentUser();
 
         Order order = new Order();
         order.setUser(user);
         order.setStatus(OrderStatus.CREATED);
         order.setCreatedAt(LocalDateTime.now());
 
+        Set<OrderItem> items = findOrderItems(cart.getProductQuantities(), order);
+        order.setOrderItems(items);
+
+        BigDecimal total = calculateTotal(items);
+        order.setTotal(total);
+
+        orderRepository.save(order);
+
+        cartService.clearCart(sessionId);
+
+        return new OrderDto(order);
+    }
+
+    private BigDecimal calculateTotal(Set<OrderItem> items) {
         BigDecimal total = BigDecimal.ZERO;
+
+        for (OrderItem item : items) {
+            total = total.add(item.getTotalPrice());
+        }
+
+        return total;
+    }
+    
+    private Set<OrderItem> findOrderItems(Map<Long, Integer> productQuantities, Order order) {
         Set<OrderItem> items = new HashSet<>();
 
-        for (Map.Entry<Long, Integer> entry : cart.getProductQuantities().entrySet()) {
+        for (Map.Entry<Long, Integer> entry : productQuantities.entrySet()) {
             Long productId = entry.getKey();
             int quantity = entry.getValue();
 
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new EntityNotFoundException("Product not found."));
 
-            if (product.getAvailable() < quantity) {
-                throw new QuantityNotInStock("Not enough stock for product: " + product.getTitle());
-            }
-
-            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(quantity));
-
-            OrderItem item = new OrderItem();
-            item.setProduct(product);
-            item.setQuantity(quantity);
-            item.setPriceEach(product.getPrice());
-            item.setTotalPrice(itemTotal);
-            item.setOrder(order);
+            OrderItem item = getOrderItem(order, product, quantity);
 
             items.add(item);
-            total = total.add(itemTotal);
-
-            // Deduct from stock
+            
             product.setAvailable(product.getAvailable() - quantity);
         }
+        
+        return items;
+    }
 
-        order.setTotal(total);
-        order.setOrderItems(items);
+    private static OrderItem getOrderItem(Order order, Product product, int quantity) {
+        if (product.getAvailable() < quantity) {
+            throw new QuantityNotInStock("Not enough stock for product: " + product.getTitle());
+        }
 
-        // Save everything
-        orderRepository.save(order);
+        BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(quantity));
 
-        // Clear cart
-        cartService.clearCart(sessionId);
-
-        return new OrderDto(order);
+        OrderItem item = new OrderItem();
+        item.setProduct(product);
+        item.setQuantity(quantity);
+        item.setPriceEach(product.getPrice());
+        item.setTotalPrice(itemTotal);
+        item.setOrder(order);
+        return item;
     }
 
     @Override
     public List<OrderDto> getOrders(String sessionId) {
-        return orderRepository.findAll().stream().map(this::convertToDto).toList();
+        User user = getCurrentUser();
+
+        return orderRepository.findByUser(user).stream()
+                .map(OrderDto::new)
+                .toList();
     }
 
-    private OrderDto convertToDto(Order order) {
-        return new OrderDto(order);
+    @Override
+    public void cancelOrder(Long orderId, String sessionId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found."));
+
+        User user = getCurrentUser();
+
+        if (!order.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("You cannot cancel someone else's order.");
+        }
+
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Order is already cancelled.");
+        }
+
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.setAvailable(product.getAvailable() + item.getQuantity());
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+
+        orderRepository.save(order);
     }
 
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+    }
 }

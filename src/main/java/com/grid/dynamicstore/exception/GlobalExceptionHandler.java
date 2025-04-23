@@ -52,4 +52,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleProductNotInCart(ProductNotInCart ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(EmptyCart.class)
+    public ResponseEntity<String> handleEmptyCart(EmptyCart ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }

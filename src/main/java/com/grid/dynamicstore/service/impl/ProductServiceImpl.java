@@ -58,10 +58,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDto> getAllProducts() {
-        return productRepository.findAll().stream().map(this::convertToDto).toList();
-    }
-
-    private ProductDto convertToDto(Product product) {
-        return new ProductDto(product);
+        return productRepository.findAll().stream().map(ProductDto::new).toList();
     }
 }

@@ -25,7 +25,7 @@ public class Order {
 
     @EqualsAndHashCode.Include
     @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private BigDecimal total;

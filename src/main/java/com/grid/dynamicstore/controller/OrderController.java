@@ -4,10 +4,7 @@ import com.grid.dynamicstore.dto.OrderDto;
 import com.grid.dynamicstore.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,5 +28,11 @@ public class OrderController {
     public ResponseEntity<List<OrderDto>> getOrders(HttpSession session) {
         List<OrderDto> orders = orderService.getOrders(session.getId());
         return ResponseEntity.ok(orders);
+    }
+
+    @PostMapping("/cancel/{orderId}")
+    public ResponseEntity<String> cancelOrder(@PathVariable Long orderId, HttpSession session) {
+        orderService.cancelOrder(orderId, session.getId());
+        return ResponseEntity.ok("Order cancelled and stock restored.");
     }
 }
