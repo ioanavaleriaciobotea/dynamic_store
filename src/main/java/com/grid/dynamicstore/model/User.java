@@ -3,6 +3,7 @@ package com.grid.dynamicstore.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +27,15 @@ public class User {
 
     @Column(nullable = false)
     private String passwordHash;
+
+    @Column
+    private String resetToken;
+
+    @Column(nullable = false)
+    private Integer failedLoginAttempts = 0;
+
+    @Column
+    private LocalDateTime lastFailedLogin;
 
     // One user -> many orders
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

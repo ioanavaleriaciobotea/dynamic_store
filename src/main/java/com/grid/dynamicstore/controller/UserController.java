@@ -2,10 +2,12 @@ package com.grid.dynamicstore.controller;
 
 import com.grid.dynamicstore.dto.LoginRequestDto;
 import com.grid.dynamicstore.dto.RegisterRequestDto;
+import com.grid.dynamicstore.dto.ResetPasswordDto;
 import com.grid.dynamicstore.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -67,4 +69,17 @@ public class UserController {
 
         return ResponseEntity.ok("Logged out.");
     }
+
+    @PostMapping("/request-reset")
+    public ResponseEntity<String> requestReset(@RequestBody @Email String email) {
+        String message = userService.requestPasswordReset(email);
+        return ResponseEntity.ok("Reset token generated" + message);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordDto dto) {
+        userService.resetPassword(dto);
+        return ResponseEntity.ok("Password updated successfully.");
+    }
+
 }

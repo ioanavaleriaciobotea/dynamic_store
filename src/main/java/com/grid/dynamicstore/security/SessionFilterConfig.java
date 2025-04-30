@@ -17,7 +17,7 @@ public class SessionFilterConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/users/register", "/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/register", "/users/login", "/users/request-reset", "/users/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products").permitAll()
                         .anyRequest().authenticated()
                 )
